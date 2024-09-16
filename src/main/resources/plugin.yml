@@ -1,0 +1,22 @@
+name: protect_core
+version: '1.20.1-META-0.0.1b'
+main: fansyr.protect_core.Protect_core
+api-version: '1.20'
+authors: [ Fansyr ]
+description: Make your city safer!
+
+commands:
+  gm:
+    description: can't use this!
+    usage: /<command>
+  ki:
+    description: can't use this!
+    usage: /<command>
+  me:
+    description: can't use this!
+    usage: /<command>
+  nv:
+    description: can't use this!
+    usage: /<command>
+
+
