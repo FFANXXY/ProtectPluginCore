@@ -1,22 +1,56 @@
 name: protect_core
-version: '1.20.1-META-0.0.1b'
+version: '1.20.1-META-0.0.6.7b'
 main: fansyr.protect_core.Protect_core
 api-version: '1.20'
 authors: [ Fansyr ]
 description: Make your city safer!
 
 commands:
-  gm:
-    description: can't use this!
-    usage: /<command>
+  gamemode:
+    description: 设置游戏模式,0/1/2/3 <无返回>
+    usage: /<command> 0|1|2|3|对应英文
+    aliases: [gm]
   ki:
-    description: can't use this!
+    description: 自杀 <无返回>
     usage: /<command>
   me:
     description: can't use this!
     usage: /<command>
   nv:
-    description: can't use this!
+    description: 夜视切换 none/0/1 <无返回>
+    usage: /<command> true|false
+  kill:
+    description: can't use this
+    usage: /<command> admin
+  sever:
+    description: 获取服务器信息
     usage: /<command>
+  wl:
+    description: 白名单操作
+    usage: /<command> add|remove
+  say:
+    description: 说话
+    usage: /<command> msg
+  execute:
+    description: Execute Command
+    usage: /<command>
+  ranplayer:
+    description: random player
+    usage: /<command>
+    permission: protectcore.ranplayer
+    permission-message: 你没有权限执行此命令
+  random:
+    description: random
+    usage: /<command>
+    permission: protectcore.random
+    permission-message: 你没有权限执行此命令
+  hide:
+    description: 隐藏玩家
+    usage: /<command>
+permissions:
+  protectcore.ranplayer:
+    default: op
+  protectcore.random:
+    default: true
 
 
