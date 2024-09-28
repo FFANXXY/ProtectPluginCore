@@ -30,7 +30,7 @@ public class RandomCommand implements CommandExecutor, TabCompleter {
 
             if (min > max) {
                 sender.sendMessage(ChatColor.RED + "最小值不能大于最大值");
-                return false;
+                return true;
             }
 
             int randomNumber = random.nextInt(max - min + 1) + min;
@@ -43,7 +43,7 @@ public class RandomCommand implements CommandExecutor, TabCompleter {
             return true;
         } catch (NumberFormatException e) {
             sender.sendMessage(ChatColor.RED + "请输入有效的整数");
-            return false;
+            return true;
         }
     }
 

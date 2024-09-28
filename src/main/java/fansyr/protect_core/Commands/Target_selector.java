@@ -8,6 +8,7 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -100,7 +101,15 @@ public class Target_selector {
             }
 
             return nearestPlayerList;
-        }else if(arg.startsWith("@e")) {
+        }else if(arg.startsWith("@e[type=item]")) {
+            List<Entity> e = Bukkit.getWorlds().stream()
+                    .flatMap(world -> world.getEntities().stream())
+                    .filter(entity -> entity instanceof Item)
+                    .toList();
+            return e;
+
+        }
+        else if(arg.startsWith("@e")) {
             List<Entity> e = Bukkit.getWorlds().stream()
                     .flatMap(world -> world.getEntities().stream())
                     //.filter(entity -> entity instanceof !!!) !!!处写上类型

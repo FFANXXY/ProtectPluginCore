@@ -1,5 +1,5 @@
 name: protect_core
-version: '1.20.1-META-0.0.6.7b'
+version: '1.20.1-META-0.0.9.12b'
 main: fansyr.protect_core.Protect_core
 api-version: '1.20'
 authors: [ Fansyr ]
@@ -46,7 +46,12 @@ commands:
     permission-message: 你没有权限执行此命令
   hide:
     description: 隐藏玩家
-    usage: /<command>
+    dsage: /<command>
+  pup:
+    description: ppcore
+    dsage: /<command> <update>
+
+
 permissions:
   protectcore.ranplayer:
     default: op

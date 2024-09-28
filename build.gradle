@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'fansyr'
-version = '1.20.1-META-0.0.6.7b'
+version = '1.20.1-META-0.0.9.12b'
 
 repositories {
     mavenCentral()

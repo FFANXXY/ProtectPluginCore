@@ -1,4 +1,4 @@
-package fansyr.protect_core.Commands.difficult;
+package fansyr.protect_core.Commands.disable;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -11,8 +11,8 @@ import java.util.List;
 public class ExecuteCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.MAGIC + "12343" + ChatColor.RESET + "你的指令被神秘力量拦截了!" + ChatColor.MAGIC + "34321");
-        return false;
+        sender.sendMessage(ChatColor.DARK_RED + "" + ChatColor.MAGIC + "12343" + ChatColor.RESET + "你的指令被神秘力量拦截了!" + ChatColor.DARK_RED + ChatColor.MAGIC + "34321");
+        return true;
     }
 
     @Override

@@ -4,9 +4,11 @@ import fansyr.protect_core.Commands.*;
 import fansyr.protect_core.Commands.Severs.HideCommand;
 import fansyr.protect_core.Commands.Severs.sever;
 import fansyr.protect_core.Commands.Severs.whiteLists;
-import fansyr.protect_core.Commands.difficult.ExecuteCommand;
+import fansyr.protect_core.Commands.disable.ExecuteCommand;
+import fansyr.protect_core.Commands.disable.Me;
 import fansyr.protect_core.Commands.funny.RanPlayer;
 import fansyr.protect_core.Commands.funny.RandomCommand;
+import fansyr.protect_core.Commands.ppcore.pup;
 import fansyr.protect_core.designs.WhiteList;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -15,10 +17,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,8 +29,6 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,15 +52,7 @@ public final class Protect_core extends JavaPlugin implements Listener {
 
         //注册事件
         getServer().getPluginManager().registerEvents(this, this);
-
-        //================================================================
-        OfflinePlayer player = Bukkit.getOfflinePlayer("Fansyr");
-        // 检查玩家是否已经被加入白名单
-        if (!player.isWhitelisted()) {
-            // 添加玩家到白名单
-            player.setWhitelisted(true);
-        }
-        //================================================================
+        
 
         new BukkitRunnable() {
             @Override
@@ -91,6 +79,8 @@ public final class Protect_core extends JavaPlugin implements Listener {
         Objects.requireNonNull(this.getCommand("execute")).setExecutor(new ExecuteCommand());
         Objects.requireNonNull(this.getCommand("random")).setExecutor(new RandomCommand());
         Objects.requireNonNull(this.getCommand("hide")).setExecutor(new HideCommand());
+        Objects.requireNonNull(this.getCommand("me")).setExecutor(new Me());
+        Objects.requireNonNull(this.getCommand("pup")).setExecutor(new pup());
 
 
 
@@ -151,25 +141,11 @@ public final class Protect_core extends JavaPlugin implements Listener {
                 append(" [更新日志]").//使用append进行分段
                         color(ChatColor.AQUA).
                         event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                "/tellraw @s [{\"text\":\"[PPC] Beta 0.6.2\"}," +
-                                        "{\"text\":\"\\n| 1./gamemode简单化\"}," +
-                                        "{\"text\":\"\\n| 2./help告诉语法\"}," +
-                                        "{\"text\":\"\\n| 3.修复指令返回与效果\"}," +
-                                        "{\"text\":\"\\n| 4.添加命令补全\"}," +
-                                        "{\"text\":\"\\n| 5.支持服务端输入更多指令\"}," +
-                                        "{\"text\":\"\\n| 6.???\"}," +
-                                        "{\"text\":\"\\n| 7.???\"}" + "]")).
+                                "/pup update")).
                 append(" [更新计划]").//使用append进行分段
                         color(ChatColor.BLUE).
                         event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                "/tellraw @s [{\"text\":\"[更新计划] Beta 0.8.0\"}," +
-                                        "{\"text\":\"\\n| 1./kill指令支持更多参数\"}," +
-                                        "{\"text\":\"\\n| 2./random指令\"}," +
-                                        "{\"text\":\"\\n| 3.修复bug\"}," +
-                                        "{\"text\":\"\\n| 4.添加更多命令补全\"}," +
-                                        "{\"text\":\"\\n| 5.优化性能\"}," +
-                                        "{\"text\":\"\\n| 6.更多趣味指令\"}," +
-                                        "{\"text\":\"\\n| 7.添加报错日志\"}" + "]"))
+                                "(不想写了，自己期待吧!)"))
                 .create());
 
 
@@ -207,7 +183,12 @@ public final class Protect_core extends JavaPlugin implements Listener {
     //关闭时执行
     @Override
     public void onDisable() {
-        System.out.println("Sever may be closed.Report is spawning...");
+            try {
+                getServer().getPluginManager().enablePlugin(this);
+                getLogger().info("Plugin re-enabled because the server is not shutting down.");
+            } catch (Exception ignored) {
+
+            }
     }
 
     //LOG
@@ -220,10 +201,52 @@ public final class Protect_core extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         String name = player.getName();
         String msg = event.getMessage();
-        if(msg.startsWith("/execute")) {
-            event.setCancelled(true);
-            player.sendMessage("§c你不能使用这个指令");
-        }
+        event.setMessage(SubPlayer(msg,player));
     }
+
+    private String SubChoose;
+    //处理玩家名
+    public static String SubPlayer(String input,Player sender) {
+        // 查找第一个 '@' 符号的位置
+        int atIndex = input.indexOf('@');
+        if (atIndex == -1) {
+            return input; // 如果没有找到 '@'，直接返回原字符串
+        }
+
+        // 查找从 '@' 开始到下一个空格之间的子字符串
+        int spaceIndex = input.indexOf(' ', atIndex);
+        if (spaceIndex == -1) {
+            spaceIndex = input.length(); // 如果没有找到空格，设置为空格位置为字符串长度
+        }
+
+        // 提取需要格式化的子字符串
+        String mention = input.substring(atIndex, spaceIndex);
+
+            String pn = mention.substring(1);
+            Player targetPlayer = Bukkit.getPlayer(pn);
+
+            if (targetPlayer != null && targetPlayer.isOnline()) {
+                // 播放音效
+                targetPlayer.playSound(targetPlayer.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 2.0f, 1.0f);
+                sender.playSound(sender.getLocation(), Sound.ENTITY_ARROW_HIT, 2.0f, 1.0f);
+
+                // 发送消息给发送者
+                sender.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(org.bukkit.ChatColor.AQUA + "已经向" + mention + "发送通知!"));
+
+                // 将子字符串改为金色
+                String goldMention = org.bukkit.ChatColor.GOLD + mention + ChatColor.RESET;
+
+                // 重新构建整个字符串
+                return input.substring(0, atIndex) + goldMention + input.substring(spaceIndex);
+            } else {
+                // 将子字符串改为蓝色
+                String goldMention = org.bukkit.ChatColor.BLUE + mention + ChatColor.RESET;
+
+                // 重新构建整个字符串
+                return input.substring(0, atIndex) + goldMention + input.substring(spaceIndex);
+            }
+
+    }
+
 }
 
