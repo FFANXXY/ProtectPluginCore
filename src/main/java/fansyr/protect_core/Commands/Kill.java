@@ -1,5 +1,6 @@
 package fansyr.protect_core.Commands;
 
+import fansyr.protect_core.Commands.interfaces.getEntity;
 import fansyr.protect_core.Protect_core;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static fansyr.protect_core.Protect_core.whiteList;
 
@@ -111,6 +113,11 @@ public class Kill implements CommandExecutor, TabCompleter {
             Params.add("@r");
             for (Player player : Bukkit.getOnlinePlayers()) {
                 Params.add(player.getName());
+            }
+            try {
+                Params.add(Objects.requireNonNull(getEntity.getEntityInSight((Player) sender, 5)).getUniqueId().toString());
+            } catch (Exception ignored) {
+
             }
             // 过滤出以输入与字符串开头匹配的参数
             List<String> LastParams = new ArrayList<>();

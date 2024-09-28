@@ -8,6 +8,8 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,5 +92,32 @@ public class getEntity {
                 .filter(entity -> entity instanceof Player)  // 过滤出玩家实体
                 .map(entity -> ((Player) entity).getName())  // 获取玩家的名字
                 .collect(Collectors.joining(", "));          // 用逗号和空格连接名字
+    }
+
+    //获取眼前实体
+
+    /**
+     * 获取玩家眼前的实体
+     *
+     * @param player 玩家
+     * @param range  距离
+     * @return
+     */
+    public static Entity getEntityInSight(Player player, double range) {
+        // 获取玩家的眼睛位置
+        Location eyeLocation = player.getEyeLocation();
+
+        // 获取玩家的视线方向向量
+        Vector direction = player.getEyeLocation().getDirection().normalize();
+
+        // 进行射线追踪
+        RayTraceResult result = player.getWorld().rayTraceEntities(eyeLocation, direction, 0.5, 1.0, entity -> entity != player);
+
+        // 如果有结果，返回第一个被击中的实体
+        if (result != null && result.getHitEntity() != null) {
+            return result.getHitEntity();
+        }
+
+        return null;
     }
 }

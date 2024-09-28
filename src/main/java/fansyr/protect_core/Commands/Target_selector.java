@@ -63,7 +63,7 @@ public class Target_selector {
 
             // 解析 [self=false] 参数
             List<String> params = parseParameters(arg);
-            boolean excludeSelf = shouldExcludeSelf(params, sender);
+            boolean excludeSelf = Upchoose(params, sender);
 
             // 获取最近的玩家
             Player nearestPlayer = Bukkit.getOnlinePlayers().stream()
@@ -86,7 +86,7 @@ public class Target_selector {
 
             // 解析 [self=false] 参数
             List<String> params = parseParameters(arg);
-            boolean excludeSelf = shouldExcludeSelf(params, sender);
+            boolean excludeSelf = Upchoose(params, sender);
 
             // 获取最远的玩家
             Player nearestPlayer = Bukkit.getOnlinePlayers().stream()
@@ -157,10 +157,10 @@ public class Target_selector {
         return List.of(paramsStr.split(","));
     }
 
-    private static boolean shouldExcludeSelf(List<String> params, CommandSender sender) {
+    private static boolean Upchoose(List<String> params, CommandSender sender) {
         for (String param : params) {
             if (param.trim().startsWith("self=")) {
-                String value = param.trim().substring(5).toLowerCase();
+                String value = param.trim().substring(param.trim().indexOf("=") + 1).toLowerCase();
                 if (value.equals("false")) {
                     return true;
                 } else if (value.equals("true") && sender instanceof Player) {
@@ -170,4 +170,6 @@ public class Target_selector {
         }
         return false; // 默认不排除自己
     }
+
+
 }

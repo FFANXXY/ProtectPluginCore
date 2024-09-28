@@ -4,16 +4,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class pup implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if(args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "语法: /pup <update>");
+            sender.sendMessage(ChatColor.RED + "语法: /pup <update>|<future>");
         } else if(args.length == 1) {
             if(args[0].equals("update")) {
-                sender.sendMessage(ChatColor.GREEN + "ProtectPluginCore 更新日志");
-                sender.sendMessage(ChatColor.GREEN + "Meta 9.0.0:");
+                sender.sendMessage(ChatColor.GREEN + "\nProtectPluginCore 更新日志");
+                sender.sendMessage(ChatColor.GREEN + "Meta 9.3.7:");
                 sender.sendMessage(ChatColor.GREEN + "1. 修复了一些bug");
                 sender.sendMessage(ChatColor.GREEN + "2. 修复一些漏洞");
                 sender.sendMessage(ChatColor.GREEN + "3. 修改了一些代码");
@@ -24,8 +25,12 @@ public class pup implements CommandExecutor {
                 sender.sendMessage(ChatColor.AQUA + " | --使用@时可以提醒玩家");
                 sender.sendMessage(ChatColor.GREEN + "8. 修改更新日志机制");
                 sender.sendMessage(ChatColor.AQUA + "！9.添加pup指令实现实用操作 (目前只有update)");
-                sender.sendMessage(ChatColor.GREEN + "10 无");
-                sender.sendMessage(ChatColor.GREEN + "11 无");
+                sender.sendMessage(ChatColor.GREEN + "10 (0.0.9.13) 添加KILL 的UUiD补全");
+                sender.sendMessage(ChatColor.GREEN + "11 (0.0.9.35) 添加更多的对Chat事件的支持");
+            } else if(args[0].equals("future")) {
+                sender.sendMessage(ChatColor.GREEN + "\nProtectPluginCore 未来计划");
+                sender.sendMessage(ChatColor.GREEN + "1. 添加更多的功能");
+                sender.sendMessage(ChatColor.GREEN + "2. 添加过去聊天回放");
             }
         }
         return true;

@@ -29,6 +29,12 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.rmi.ServerError;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,18 +44,18 @@ public final class Protect_core extends JavaPlugin implements Listener {
     public static WhiteList whiteList = new WhiteList();
     @Override
     public void onEnable() {
+        //清空报告文件
+        clearCloseLogsFolder();
 
         whiteList.registered();
         //启动插件tips
-        System.out.println("""
-                            ===============================================
-                            |  PPcore is loaded
-                            |  Version : 1.0.0
-                            |  Create By Fansyr
-                            |  Github : https://github.com/ffanxxy
-                            |  Sever For : ShenuiCity Sever
-                            """ + "===============================================");
-
+        System.out.println(ChatColor.AQUA + symbols.STAR + "-------------------------" + symbols.STAR);
+        System.out.println(ChatColor.LIGHT_PURPLE + symbols.List_1);
+        System.out.println(ChatColor.BLUE + "作者: " + ChatColor.GOLD + "Fansyr\n" + ChatColor.BLUE + " 插件名: " + ChatColor.GOLD + "ProtectCore" + ChatColor.BLUE + " 版本: " + ChatColor.GOLD + "META-0.0.9.34b");
+        System.out.println(ChatColor.LIGHT_PURPLE + symbols.List_2);
+        System.out.println(ChatColor.AQUA + symbols.STAR + "制作时间 : 2024.10.1" + symbols.STAR + "   " + ChatColor.DARK_AQUA + "1.20.1-META-0.0.9.34b");
+        System.out.println(ChatColor.LIGHT_PURPLE + symbols.List_3);
+        System.out.println(ChatColor.AQUA + symbols.STAR + "-------------------------" + symbols.STAR);
         //注册事件
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -135,9 +141,8 @@ public final class Protect_core extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         String name = player.getName();
 
-        player.spigot().sendMessage(new ComponentBuilder("感谢使用ProtectCore插件!").
-                color(ChatColor.GOLD).
-                bold(true).
+        player.spigot().sendMessage(new ComponentBuilder(ChatColor.GOLD + ChatColor.BOLD.toString() +  "感谢使用ProtectCore插件" + ChatColor.RESET +
+                ChatColor.GOLD  + "<V.2024.10.1 2253>!").
                 append(" [更新日志]").//使用append进行分段
                         color(ChatColor.AQUA).
                         event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
@@ -145,7 +150,7 @@ public final class Protect_core extends JavaPlugin implements Listener {
                 append(" [更新计划]").//使用append进行分段
                         color(ChatColor.BLUE).
                         event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                "(不想写了，自己期待吧!)"))
+                                "/pup future"))
                 .create());
 
 
@@ -183,6 +188,10 @@ public final class Protect_core extends JavaPlugin implements Listener {
     //关闭时执行
     @Override
     public void onDisable() {
+
+        //生成报告文件
+        generateReportFile();
+
             try {
                 getServer().getPluginManager().enablePlugin(this);
                 getLogger().info("Plugin re-enabled because the server is not shutting down.");
@@ -204,11 +213,17 @@ public final class Protect_core extends JavaPlugin implements Listener {
         event.setMessage(SubPlayer(msg,player));
     }
 
-    private String SubChoose;
-    //处理玩家名
-    public static String SubPlayer(String input,Player sender) {
+    private static final String MENTION_PREFIX = "@";
+    private static final String GOLD_MENTION_FORMAT = ChatColor.GOLD + "%s" + ChatColor.RESET;
+    private static final String BLUE_MENTION_FORMAT = ChatColor.BLUE + "%s" + ChatColor.RESET;
+
+    public static String SubPlayer(String input, Player sender) {
+        if (input == null || input.isEmpty()) {
+            return input; // 如果输入为空，直接返回
+        }
+
         // 查找第一个 '@' 符号的位置
-        int atIndex = input.indexOf('@');
+        int atIndex = input.indexOf(MENTION_PREFIX);
         if (atIndex == -1) {
             return input; // 如果没有找到 '@'，直接返回原字符串
         }
@@ -222,31 +237,75 @@ public final class Protect_core extends JavaPlugin implements Listener {
         // 提取需要格式化的子字符串
         String mention = input.substring(atIndex, spaceIndex);
 
-            String pn = mention.substring(1);
-            Player targetPlayer = Bukkit.getPlayer(pn);
+        // 去掉 '@' 符号，获取玩家名
+        String playerName = mention.substring(1);
 
-            if (targetPlayer != null && targetPlayer.isOnline()) {
-                // 播放音效
-                targetPlayer.playSound(targetPlayer.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 2.0f, 1.0f);
-                sender.playSound(sender.getLocation(), Sound.ENTITY_ARROW_HIT, 2.0f, 1.0f);
+        // 获取目标玩家
+        Player targetPlayer = Bukkit.getPlayer(playerName);
 
-                // 发送消息给发送者
-                sender.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(org.bukkit.ChatColor.AQUA + "已经向" + mention + "发送通知!"));
+        if (targetPlayer != null && targetPlayer.isOnline()) {
+            // 播放音效
+            targetPlayer.playSound(targetPlayer.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 2.0f, 1.0f);
+            sender.playSound(sender.getLocation(), Sound.ENTITY_ARROW_HIT, 2.0f, 1.0f);
 
-                // 将子字符串改为金色
-                String goldMention = org.bukkit.ChatColor.GOLD + mention + ChatColor.RESET;
+            // 发送消息给发送者
+            sender.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA + "已经向" + mention + "发送通知!"));
 
-                // 重新构建整个字符串
-                return input.substring(0, atIndex) + goldMention + input.substring(spaceIndex);
-            } else {
-                // 将子字符串改为蓝色
-                String goldMention = org.bukkit.ChatColor.BLUE + mention + ChatColor.RESET;
-
-                // 重新构建整个字符串
-                return input.substring(0, atIndex) + goldMention + input.substring(spaceIndex);
-            }
-
+            // 将子字符串改为金色
+            String goldMention = String.format(GOLD_MENTION_FORMAT, mention);
+            return input.substring(0, atIndex) + goldMention + input.substring(spaceIndex);
+        } else {
+            // 将子字符串改为蓝色
+            String blueMention = String.format(BLUE_MENTION_FORMAT, mention);
+            return input.substring(0, atIndex) + blueMention + input.substring(spaceIndex);
+        }
     }
 
+    //报告生成
+    private static final String LOGS_FOLDER = "CloseLogs";
+
+    private void generateReportFile() {
+        // 获取数据文件夹
+        File dataFolder = getDataFolder();
+
+        // 确保 CloseLogs 文件夹存在
+        File logsFolder = new File(dataFolder, LOGS_FOLDER);
+        if (!logsFolder.exists()) {
+            logsFolder.mkdirs();
+        }
+
+        // 生成文件名
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String fileName = "report_" + dateFormat.format(new Date()) + ".txt";
+        File reportFile = new File(logsFolder, fileName);
+
+        try (FileWriter writer = new FileWriter(reportFile)) {
+            // 写入报告内容
+            writer.write("插件关闭报告\n");
+            writer.write("时间: " + new Date() + "\n");
+            // 可以在这里添加更多的报告信息
+            writer.write("=====================================");
+            writer.write("功能暂未实现，敬请期待");
+        } catch (IOException e) {
+            getLogger().severe("无法生成报告文件: " + e.getMessage());
+        }
+    }
+
+    private void clearCloseLogsFolder() {
+        // 获取数据文件夹
+        File dataFolder = getDataFolder();
+
+        // 获取 CloseLogs 文件夹
+        File logsFolder = new File(dataFolder, LOGS_FOLDER);
+
+        // 如果文件夹存在，删除其所有内容
+        if (logsFolder.exists() && logsFolder.isDirectory()) {
+            for (File file : logsFolder.listFiles()) {
+                if (file.isFile()) {
+                    file.delete();
+                }
+            }
+        }
+    }
 }
 
